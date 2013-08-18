@@ -16,6 +16,8 @@ With [npm](https://npmjs.org) do:
 npm install crops
 ```
 
+Crops requires [graphicsmagick](http://www.graphicsmagick.org/) so make sure that is [installed](https://www.google.com/search?q=installing+graphicsmagick)
+
 example
 -------
 
