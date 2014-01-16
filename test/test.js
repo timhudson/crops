@@ -16,7 +16,7 @@ var staticServer = http.createServer(function(req, res) {
 var server = crops('http://localhost:3001').listen(3000)
 
 test('crops', function(t) {
-  t.plan(4)
+  t.plan(5)
   t.ok(server instanceof http.Server, 'returns instance of http.Server')
 
   async.parallel([
@@ -27,8 +27,15 @@ test('crops', function(t) {
       })
     },
     function(cb) {
-      request('http://localhost:3000/image.jpg?size=10x10', function(err, res, body) {
-        t.ok(body.length < 1000 && body.length > 100, 'resizes image according to `size` query parameter')
+      request('http://localhost:3000/10/image.jpg', function(err, res, body) {
+        t.ok(body.length < 1000 && body.length > 100, 'resizes image according to width provided')
+        cb(err)
+      })
+    },
+    function(cb) {
+      request('http://localhost:3000/100x1000/image.jpg', function(err, res, body) {
+        console.log(body.length)
+        t.ok(body.length < 13000 && body.length > 10000, 'resizes image according to width and height provided')
         cb(err)
       })
     },

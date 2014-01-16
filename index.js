@@ -1,7 +1,6 @@
 var http = require('http')
   , https = require('https')
   , url = require('url')
-  , querystring = require('querystring')
   , gm = require('gm')
 
 module.exports = function(basePath) {
@@ -9,13 +8,11 @@ module.exports = function(basePath) {
     , get = parsedBasePath.protocol === 'https:' ? https.get : http.get
 
   return http.createServer(function(req, res) {
-    var parsedUrl = url.parse(req.url)
-      , query = querystring.parse(parsedUrl.query)
-      , size = query.size ? query.size.split('x') : undefined
+    var params = parseParams(req.url)
       , options = {
           hostname: parsedBasePath.hostname,
           port: parsedBasePath.port,
-          path: (parsedBasePath.path + parsedUrl.pathname).replace('//', '/')
+          path: (parsedBasePath.path + params.imagePath).replace('//', '/')
         }
 
     get(options, function(r) {
@@ -27,11 +24,11 @@ module.exports = function(basePath) {
         return
       }
 
-      if (size) {
+      if (params.size) {
         imageStream
-          .resize(size[0], size[1], '^')
+          .resize(params.size.width, params.size.height, '^')
           .gravity('Center')
-          .crop(size[0], size[1])
+          .crop(params.size.width, params.size.height)
       }
       
       imageStream
@@ -39,4 +36,29 @@ module.exports = function(basePath) {
         .pipe(res)
     })
   })
+}
+
+var widthRegex = /^\/(\d+)*\//
+  , widthHeightRegex = /^\/(\d+)x?(\d+)*\//
+
+function parseParams(url) {
+  var params = {
+        imagePath: url.replace(widthRegex, '/').replace(widthHeightRegex, '/')
+      }
+    , sizeMatch
+
+  if (sizeMatch = url.match(widthRegex)) {
+    params.size = {
+      width: sizeMatch[1],
+      height: sizeMatch[1]
+    }
+  }
+  else if (sizeMatch = url.match(widthHeightRegex)) {
+    params.size = {
+      width: sizeMatch[1],
+      height: sizeMatch[2]
+    }
+  }
+
+  return params
 }
