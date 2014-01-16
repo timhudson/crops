@@ -25,10 +25,12 @@ example
 var crops = require('crops')
 
 crops('https://npm-crops.s3.amazonaws.com/').listen(3000)
+```
 
-// curl http://localhost:3000/ben.jpg
-// curl http://localhost:3000/ben.jpg?size=160x90
-// curl http://localhost:3000/ben.jpg?size=400x220
+```bash
+$ curl http://localhost:3000/image.jpg
+$ curl http://localhost:3000/160x90/image.jpg
+$ curl http://localhost:3000/400x220/image.jpg
 ```
 
 license
