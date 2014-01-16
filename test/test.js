@@ -22,7 +22,7 @@ test('crops', function(t) {
   async.parallel([
     function(cb) {
       request('http://localhost:3000/image.jpg', function(err, res, body) {
-        t.ok(body.length < 50000 && body.length > 49000, 'returns uncropped image when no `size` is specified')
+        t.ok(body.length === 69459, 'returns uncropped image when no `size` is specified')
         cb(err)
       })
     },

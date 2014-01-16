@@ -16,22 +16,19 @@ module.exports = function(basePath) {
         }
 
     get(options, function(r) {
-      var imageStream = gm(r)
-
       if (r.statusCode !== 200) {
         res.statusCode = r.statusCode
         r.pipe(res)
         return
       }
 
-      if (params.size) {
-        imageStream
-          .resize(params.size.width, params.size.height, '^')
-          .gravity('Center')
-          .crop(params.size.width, params.size.height)
-      }
-      
-      imageStream
+      if (!params.size)
+        return r.pipe(res)
+
+      gm(r)
+        .resize(params.size.width, params.size.height, '^')
+        .gravity('Center')
+        .crop(params.size.width, params.size.height)
         .stream()
         .pipe(res)
     })
