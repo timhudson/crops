@@ -8,7 +8,8 @@ module.exports = function(basePath) {
     , get = parsedBasePath.protocol === 'https:' ? https.get : http.get
 
   return http.createServer(function(req, res) {
-    var params = parseParams(req.url)
+    var imageStream
+      , params = parseParams(req.url)
       , options = {
           hostname: parsedBasePath.hostname,
           port: parsedBasePath.port,
@@ -25,10 +26,23 @@ module.exports = function(basePath) {
       if (!params.size)
         return r.pipe(res)
 
-      gm(r)
-        .resize(params.size.width, params.size.height, '^')
-        .gravity('Center')
-        .crop(params.size.width, params.size.height)
+      imageStream = gm(r)
+
+      // Maintain aspect ratio if only provided the image width
+      if (!params.size.height) {
+        imageStream
+          .resize(params.size.width)
+      }
+
+      // Otherwise resize and crop the image
+      else {
+        imageStream
+          .resize(params.size.width, params.size.height, '^')
+          .gravity('Center')
+          .crop(params.size.width, params.size.height)
+      }
+
+      imageStream
         .stream()
         .pipe(res)
     })
@@ -46,8 +60,7 @@ function parseParams(url) {
 
   if (sizeMatch = url.match(widthRegex)) {
     params.size = {
-      width: sizeMatch[1],
-      height: sizeMatch[1]
+      width: sizeMatch[1]
     }
   }
   else if (sizeMatch = url.match(widthHeightRegex)) {

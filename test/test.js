@@ -33,8 +33,13 @@ test('crops', function(t) {
       })
     },
     function(cb) {
+      request('http://localhost:3000/1000/image.jpg', function(err, res, body) {
+        t.ok(body.length < 50000 && body.length > 45000, 'resizes image by width and maintains aspect ratio')
+        cb(err)
+      })
+    },
+    function(cb) {
       request('http://localhost:3000/100x1000/image.jpg', function(err, res, body) {
-        console.log(body.length)
         t.ok(body.length < 13000 && body.length > 10000, 'resizes image according to width and height provided')
         cb(err)
       })
